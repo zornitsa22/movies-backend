@@ -6,7 +6,7 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const pool = new Pool ({ connectionString: process.env.ELEPHANT_SQL_CONNECTION_STRING });
 
-// app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.get("/api/movies", (req,res) => {
     pool.query('SELECT * FROM movies;')
@@ -44,13 +44,14 @@ app.post("/api/movies",(req,res) => {
     .catch(e => res.status(500).json({ message: e.message }));
 });
 app.put("/api/movies/:id",(req,res) => {
+    const { id } = req.params;
     const { title, director, year, rating, poster } = req.body;
     const safeValues = [title, director, year, rating, poster, id];
     pool
-    .query('UPDATE movies SET title = $1, director = $2, year = $3, rating = $4, poster =$5 WHERE id=$6 RETURNING *;',safeValues)
+    .query('UPDATE movies SET title = $1, director = $2, year = $3, rating = $4, poster = $5 WHERE id=$6 RETURNING *;',safeValues)
     .then(({ rows }) => {
         console.log(rows);
-            res.status(201).json(rows[0]);
+            res.status(202).json(rows[0]);
         })
     .catch(e => res.status(500).json({ message: e.message }));
 });
